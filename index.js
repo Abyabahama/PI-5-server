@@ -49,7 +49,7 @@ app.post('/aplicador/pj/cadastro', (req, res) => {
     
   }); 
 });
-
+// >> INSERINDO DADOS - adaptado para a tabela aplicador_RPA
 app.post('/aplicador/rpa/cadastro', (req, res) => {
     // Extrai os dados do corpo da requisição 
     const {
@@ -80,7 +80,7 @@ app.post('/aplicador/rpa/cadastro', (req, res) => {
       
     }); 
 })
-
+// >> INSERINDO DADOS - adaptado para a tabela aplicador_IMT
 app.post('/aplicador/imt/cadastro', (req, res) => {
   // Extrai os dados do corpo da requisição 
   const {
@@ -107,7 +107,50 @@ app.post('/aplicador/imt/cadastro', (req, res) => {
     
   }); 
 })
+
+
+
+// INSERINDO DADOS
+// Obs: O id não pode começar com 0! (001, 010)
+// Obs: O null deve estar minusculo
+app.post('/atividade/cadastro', (req, res) => {
+  // Extrai os dados do corpo da requisição
+  const {
+    nome, coordenador, categoria, publicoAlvo,
+    descricao, topicos, objetivos, metodologia,
+    desafios, recursos, competenciasTecnicas, competenciasTransversais,
+    sala, partComunidade, status, horario, video,
+    aplicadorRPA, aplicadorPJ, aplicadorMaua_Email, aplicadorMaua_RG
+  } = req.body;
+  // Validação para no enviar dados vazios
+  if (!nome) {
+    return res.status(400).json({ error: 'Nome é um campo obrigatório.' });
+  }
+  // Comando SQL (adaptado para incluir todos os campos da tabela)
+  const sql = `
+    REPLACE INTO Atividade (
+    nome, coordenador, categoria, publicoAlvo,
+    descricao, topicos, objetivos, metodologia,
+    desafios, recursos, competenciasTecnicas, competenciasTransversais,
+    tamanho, partComunidade, status, horario, video,
+    aplicadorRPA, aplicadorPJ, aplicadorMaua_Email, aplicadorMaua_RG) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  const values = [nome, coordenador, categoria, publicoAlvo,
+    descricao, topicos, objetivos, metodologia,
+    desafios, recursos, competenciasTecnicas, competenciasTransversais,
+    sala, partComunidade, status, horario, video,
+    aplicadorRPA, aplicadorPJ, aplicadorMaua_Email, aplicadorMaua_RG]
+  // Executando o comando SQL
+  db.query(sql, values, (err, results) => {
+    if (err) {
+      console.error('Erro ao inserir dados:', err);
+      return res.status(500).json({ error: 'Erro ao inserir dados.' });
+    }
+    res.status(201).json({ message: 'Dados inseridos com sucesso!', insertId: results.insertId });
+  });
+});
+ 
  
 app.listen(4000, () => {
   console.log("Aplicadores. Porta 4000")
-})  
+})   
