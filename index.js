@@ -149,8 +149,22 @@ app.post('/atividade/cadastro', (req, res) => {
     res.status(201).json({ message: 'Dados inseridos com sucesso!', insertId: results.insertId });
   });
 });
- 
- 
+
+// BUSCANDO DADOS
+app.get('/atividade/consulta', (req, res) => {
+  const { rg } = req.query;
+  const sql = `
+    SELECT * FROM Atividade WHERE (AplicadorRPA = ? OR AplicadorPJ = ? OR AplicadorMaua_RG = ?)
+  `;
+  db.query(sql, [rg, rg, rg], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar dados:', err);
+      return;
+    }
+    res.send(results);
+  });
+});
+
 app.listen(4000, () => {
   console.log("Aplicadores. Porta 4000")
-})   
+}) 
