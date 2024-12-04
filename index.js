@@ -150,6 +150,28 @@ app.post('/atividade/cadastro', (req, res) => {
   });
 });
 
+app.post('/atividade/aprovar', (req, res) => {
+  // Extrai os dados do corpo da requisição
+  const {
+    status, codigo
+  } = req.body;
+  // Comando SQL (adaptado para incluir todos os campos da tabela)
+  const sql = `
+    UPDATE Atividade SET
+    Status = ?
+    WHERE Codigo = ?
+  `;
+  const values = [status, codigo]
+  // Executando o comando SQL
+  db.query(sql, values, (err, results) => {
+    if (err) {
+      console.error('Erro ao inserir dados:', err);
+      return res.status(500).json({ error: 'Erro ao inserir dados.' });
+    }
+    res.status(201).json({ message: 'Dados inseridos com sucesso!', insertId: results.insertId });
+  });
+});
+
 // BUSCANDO DADOS
 app.get('/atividade/consulta', (req, res) => {
   const { rg } = req.query;
@@ -157,6 +179,21 @@ app.get('/atividade/consulta', (req, res) => {
     SELECT * FROM Atividade WHERE (AplicadorRPA = ? OR AplicadorPJ = ? OR AplicadorMaua_RG = ?)
   `;
   db.query(sql, [rg, rg, rg], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar dados:', err);
+      return;
+    }
+    res.send(results);
+  });
+});
+
+//Coordenadores
+app.get('/coordenador/aprovar', (req, res) => {
+  const { Coordenador } = req.query;
+  const sql = `
+    SELECT * FROM Atividade WHERE (Coordenador = ? AND Status = ?)
+  `;
+  db.query(sql, [Coordenador, "aguardando"], (err, results) => {
     if (err) {
       console.error('Erro ao buscar dados:', err);
       return;
